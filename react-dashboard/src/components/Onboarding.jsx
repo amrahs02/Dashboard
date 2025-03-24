@@ -14,10 +14,12 @@ const Onboarding = () => {
         industry: ""
     });
 
+    // ✅ Fetch user profile on page load
     useEffect(() => {
-        dispatch(fetchProfile()); // ✅ Fetch user profile on page load
+        dispatch(fetchProfile());
     }, [dispatch]);
 
+    // ✅ Pre-fill form with user data
     useEffect(() => {
         if (user) {
             setFormData({
@@ -34,7 +36,7 @@ const Onboarding = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await dispatch(saveOnboarding(formData)); // ✅ Send onboarding data
+        const result = await dispatch(saveOnboarding(formData));
         if (result.payload?.success) {
             navigate("/dashboard"); // ✅ Redirect to Dashboard
         }

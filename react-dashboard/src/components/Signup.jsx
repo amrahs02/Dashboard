@@ -3,6 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { signupUser } from "../redux/authSlice"; // ✅ Redux action
 import { useNavigate, useLocation } from "react-router-dom";
 
+const API_BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://dashboardapi-1xma.onrender.com";
+
 const Signup = () => {
     const location = useLocation(); // ✅ Get previous page data (if redirected)
     const [formData, setFormData] = useState({
@@ -21,7 +25,7 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await dispatch(signupUser(formData)); // ✅ Use Redux action
+        const result = await dispatch(signupUser({ ...formData, API_BASE_URL })); // ✅ Pass API URL
 
         if (result.payload?.token) {
             navigate("/onboarding"); // ✅ Redirect to onboarding after signup

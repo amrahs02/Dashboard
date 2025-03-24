@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
+import API_BASE from "../config"; // ✅ Import API Config
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -15,9 +16,13 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const result = await dispatch(loginUser(formData));
-        if (result.payload?.token) {
-            navigate("/dashboard");
+        try {
+            const result = await dispatch(loginUser({ ...formData, apiUrl: API_BASE })); // ✅ Pass API URL
+            if (result.payload?.token) {
+                navigate("/dashboard");
+            }
+        } catch (error) {
+            console.error("Login failed:", error);
         }
     };
 
@@ -56,10 +61,10 @@ const Login = () => {
 
                 {/* ✅ New User Section */}
                 <div className="mt-4 flex justify-center items-center">
-                    <p className="text-gray-600 ">New User?</p>
+                    <p className="text-gray-600">New User?</p>
                     <button
                         onClick={() => navigate("/signup")}
-                        className=" mx-2 text-green-500 rounded-3xl"
+                        className="mx-2 text-green-500 rounded-3xl"
                     >
                         Sign Up
                     </button>

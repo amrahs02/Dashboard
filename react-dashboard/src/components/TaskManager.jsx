@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 
+const API_BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://dashboardapi-1xma.onrender.com";
+
 const TaskManager = () => {
   const token = useSelector((state) => state.auth.token);
   const [tasks, setTasks] = useState([]);
@@ -12,7 +16,7 @@ const TaskManager = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/tasks", {
+        const response = await axios.get(`${API_BASE_URL}/api/tasks`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTasks(response.data);
@@ -27,7 +31,7 @@ const TaskManager = () => {
     if (!newTask) return;
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/tasks",
+        `${API_BASE_URL}/api/tasks`,
         { title: newTask, status: "Pending" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -41,7 +45,7 @@ const TaskManager = () => {
   const updateTask = async (id) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/tasks/${id}`,
+        `${API_BASE_URL}/api/tasks/${id}`,
         { status: "Completed" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -53,7 +57,7 @@ const TaskManager = () => {
 
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/tasks/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/tasks/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(tasks.filter((task) => task._id !== id));
@@ -76,7 +80,7 @@ const TaskManager = () => {
     if (!editedTitle) return;
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/tasks/${id}`,
+        `${API_BASE_URL}/api/tasks/${id}`,
         { title: editedTitle },
         { headers: { Authorization: `Bearer ${token}` } }
       );
