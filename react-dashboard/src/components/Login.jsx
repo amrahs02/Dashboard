@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
-import API_BASE from "../config"; // ✅ Import API Config
+
+// Dynamic API Base URL
+const API_BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://dashboardapi-1xma.onrender.com";
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -16,21 +20,20 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const result = await dispatch(loginUser({ ...formData, apiUrl: API_BASE })); // ✅ Pass API URL
-            if (result.payload?.token) {
-                navigate("/dashboard");
-            }
-        } catch (error) {
-            console.error("Login failed:", error);
+        const result = await dispatch(loginUser(formData));
+        if (result.payload?.token) {
+            navigate("/dashboard");
         }
     };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
             <div className="w-full max-w-md p-6 bg-white shadow-md rounded-3xl">
-                <h2 className="text-2xl font-bold text-center">Login</h2>
-                {error && <p className="text-red-500 text-center">{error}</p>}
+                <h2 className="text-2xl font-bold text-center text-gray-800">Login</h2>
+                
+                {/* Error Message */}
+                {error && <p className="text-red-500 text-center bg-red-100 p-2 mt-2 rounded">{error}</p>}
+
                 <form onSubmit={handleSubmit} className="mt-4">
                     <input
                         type="email"
@@ -38,7 +41,7 @@ const Login = () => {
                         placeholder="Email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full p-2 mb-3 border rounded-3xl"
+                        className="w-full p-3 mb-3 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-300"
                         required
                     />
                     <input
@@ -47,12 +50,12 @@ const Login = () => {
                         placeholder="Password"
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full p-2 mb-3 border rounded-3xl"
+                        className="w-full p-3 mb-3 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-blue-300"
                         required
                     />
                     <button
                         type="submit"
-                        className="w-full p-2 bg-blue-500 text-white rounded-3xl"
+                        className="w-full p-3 bg-blue-600 text-white rounded-3xl hover:bg-blue-700 transition duration-200"
                         disabled={loading}
                     >
                         {loading ? "Logging in..." : "Login"}
@@ -61,10 +64,10 @@ const Login = () => {
 
                 {/* ✅ New User Section */}
                 <div className="mt-4 flex justify-center items-center">
-                    <p className="text-gray-600">New User?</p>
+                    <p className="text-gray-600 ">New User?</p>
                     <button
                         onClick={() => navigate("/signup")}
-                        className="mx-2 text-green-500 rounded-3xl"
+                        className="mx-2 text-green-500 hover:underline"
                     >
                         Sign Up
                     </button>

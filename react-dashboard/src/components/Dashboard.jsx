@@ -1,53 +1,56 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
 import axios from "axios";
-import API_BASE from "../config"; // ✅ Import API Config
+import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+
+// Determine API Base URL
+const API_BASE_URL = window.location.hostname === "localhost"
+  ? "http://localhost:5000"
+  : "https://dashboardapi-1xma.onrender.com";
 
 const Dashboard = () => {
     const token = useSelector((state) => state.auth.token);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [analytics, setAnalytics] = useState(null);
     const [summary, setSummary] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     // Fetch Analytics Data
     useEffect(() => {
         const fetchAnalytics = async () => {
-            setLoading(true);
-            setError(null);
             try {
-                const response = await axios.get(`${API_BASE}/api/analytics`, {
+                const response = await axios.get(`${API_BASE_URL}/api/analytics`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setAnalytics(response.data);
             } catch (error) {
-                setError("Error fetching analytics. Please try again.");
-                console.error("Error fetching analytics:", error);
-            } finally {
-                setLoading(false);
+                console.error("Error fetching analytics:", error.response?.data?.message || error.message);
             }
         };
 
-        fetchAnalytics();
-    }, [token]);
+        if (token) {
+            fetchAnalytics();
+        } else {
+            navigate("/login"); // Redirect if no token
+        }
+    }, [token, navigate]);
 
     // Fetch AI Summary
     useEffect(() => {
         if (analytics) {
             const fetchSummary = async () => {
-                setError(null);
                 try {
                     const response = await axios.post(
-                        `${API_BASE}/api/summary`,
+                        `${API_BASE_URL}/api/summary`,
                         { data: analytics },
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
                     setSummary(response.data.summary);
                 } catch (error) {
-                    setError("Error generating summary.");
-                    console.error("Error generating summary:", error);
+                    console.error("Error generating summary:", error.response?.data?.message || error.message);
                 }
             };
 
@@ -58,12 +61,6 @@ const Dashboard = () => {
     return (
         <div className="p-6 max-w-4xl rounded-3xl bg-gray-100 mx-auto">
             <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-
-            {/* Show Loading */}
-            {loading && <p className="text-center text-blue-500">Loading analytics...</p>}
-
-            {/* Show Error Message */}
-            {error && <p className="text-center text-red-500">{error}</p>}
 
             {/* Analytics Section */}
             {analytics && (
